@@ -1,21 +1,57 @@
 package main
 
 import (
-  "fmt"
+	"math/rand"
+	"net/http"
+	"os"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
+
+var africanCountries = []string{
+	"Algeria", "Angola", "Benin", "Botswana", "Burkina Faso",
+	"Burundi", "Cape Verde", "Cameroon", "Central African Republic",
+	"Chad", "Comoros", "Democratic Republic of the Congo",
+	"Republic of the Congo", "Djibouti", "Egypt", "Equatorial Guinea",
+	"Eritrea", "Eswatini", "Ethiopia", "Gabon", "Gambia", "Ghana",
+	"Guinea", "Guinea-Bissau", "Ivory Coast", "Kenya", "Lesotho",
+	"Liberia", "Libya", "Madagascar", "Malawi", "Mali", "Mauritania",
+	"Mauritius", "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria",
+	"Rwanda", "Sao Tome and Principe", "Senegal", "Seychelles",
+	"Sierra Leone", "Somalia", "South Africa", "South Sudan", "Sudan",
+	"Tanzania", "Togo", "Tunisia", "Uganda", "Zambia", "Zimbabwe",
+}
 
 //TIP <p>To run your code, right-click the code and select <b>Run</b>.</p> <p>Alternatively, click
 // the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.</p>
 
 func main() {
-  //TIP <p>Press <shortcut actionId="ShowIntentionActions"/> when your caret is at the underlined text
-  // to see how GoLand suggests fixing the warning.</p><p>Alternatively, if available, click the lightbulb to view possible fixes.</p>
-  s := "gopher"
-  fmt.Printf("Hello and welcome, %s!\n", s)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5000"
+	}
 
-  for i := 1; i <= 5; i++ {
-	//TIP <p>To start your debugging session, right-click your code in the editor and select the Debug option.</p> <p>We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-	// for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.</p>
-	fmt.Println("i =", 100/i)
-  }
+	seed := time.Now().UnixNano()
+	rand.New(rand.NewSource(seed))
+
+	router := gin.Default()
+	router.LoadHTMLGlob("templates/*")
+	router.Static("/static", "./static")
+
+	// Home page
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", nil)
+	})
+
+	// Random African Countries API
+	router.GET("/random", func(c *gin.Context) {
+		country := africanCountries[rand.Intn(len(africanCountries))]
+		c.JSON(http.StatusOK, gin.H{"country": country})
+	})
+
+	err := router.Run(":" + port)
+	if err != nil {
+		return
+	}
 }
