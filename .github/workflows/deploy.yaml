@@ -1,0 +1,60 @@
+name: Build and deploy Go gin Docker image to ECR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERSION_LABEL: v-${{ github.run_number }}
+      IMAGE_TAG: ${{ secrets.IMAGE_TAG }}
+      ECR_URI: ${{ secrets.ECR_URI }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+
+      - name: Build the app (binary must be named 'application')
+        run: |
+          mkdir -p build
+          go build -o build/application main.go
+
+      - name: Move templates and static folders
+        run: |
+          cp -r templates build/
+          cp -r static build/
+
+      - name: Zip deployable files
+        run: |
+          cd build
+          zip -r ../application_package.zip .
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Upload zip to S3
+        run: |
+          aws s3 cp application_package.zip s3://${{ secrets.S3_BUCKET }}/application_package.zip
+
+      - name: Log in to Amazon Public ECR
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Clean up pipeline artifacts
+        run: rm -rf build application_package.zip
