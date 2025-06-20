@@ -11,7 +11,7 @@ jobs:
     env:
       VERSION_LABEL: v-${{ github.run_number }}
       IMAGE_TAG: ${{ secrets.IMAGE_TAG }}
-      ECR_URI: ${{ secrets.ECR_URI }}
+      ECR_REPOSITORY_URI: ${{ secrets.ECR_REPOSITORY_URI }}
 
     steps:
       - name: Checkout code
@@ -23,9 +23,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
+          aws-region: us-east-1
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
 
       - name: Log in to Amazon Public ECR
         uses: aws-actions/amazon-ecr-login@v2
@@ -34,8 +34,8 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t $ECR_URI:$IMAGE_TAG .
-          docker push $ECR_URI:$IMAGE_TAG
+          docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
+          docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
 
       - name: Clean up pipeline artifacts
         run: rm -rf build application_package.zip
