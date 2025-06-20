@@ -36,6 +36,9 @@ jobs:
         run: |
           docker build -t $ECR_REPOSITORY_URI:$IMAGE_TAG .
           docker push $ECR_REPOSITORY_URI:$IMAGE_TAG
+        env:
+          ECR_REPOSITORY_URI: ${{ secrets.ECR_REPOSITORY_URI }}
+          IMAGE_TAG: ${{ secrets.IMAGE_TAG }}
 
       - name: Clean up pipeline artifacts
         run: rm -rf build application_package.zip
