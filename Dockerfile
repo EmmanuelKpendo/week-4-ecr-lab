@@ -1,5 +1,5 @@
 # -------- Build stage ---------
-FROM golang:1.24-alpine
+FROM golang:1.24-alpine AS builder  # <-- ADD THIS "AS builder"
 LABEL authors="emmanuel-kpendo"
 LABEL lab="week4_lab1"
 
