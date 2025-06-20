@@ -20,31 +20,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
 
-      - name: Build the app (binary must be named 'application')
-        run: |
-          mkdir -p build
-          go build -o build/application main.go
-
-      - name: Move templates and static folders
-        run: |
-          cp -r templates build/
-          cp -r static build/
-
-      - name: Zip deployable files
-        run: |
-          cd build
-          zip -r ../application_package.zip .
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-
-      - name: Upload zip to S3
-        run: |
-          aws s3 cp application_package.zip s3://${{ secrets.S3_BUCKET }}/application_package.zip
 
       - name: Log in to Amazon Public ECR
         uses: aws-actions/amazon-ecr-login@v2
