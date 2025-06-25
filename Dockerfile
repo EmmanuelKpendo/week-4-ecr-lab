@@ -18,6 +18,9 @@ FROM alpine:latest
 
 WORKDIR /root/
 
+# Set Gin to release mode
+ENV GIN_MODE=release
+
 COPY --from=builder /app/main .
 
 EXPOSE 5000
