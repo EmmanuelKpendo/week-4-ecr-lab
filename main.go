@@ -50,6 +50,11 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"country": country})
 	})
 
+	//Health check
+	router.GET("/health", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
+
 	err := router.Run(":" + port)
 	if err != nil {
 		return
