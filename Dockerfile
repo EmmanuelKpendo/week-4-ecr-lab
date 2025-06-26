@@ -29,6 +29,6 @@ COPY --from=builder /app/templates ./templates
 # ✅ Optional: copy static files if using ServeStatic or similar
 COPY --from=builder /app/static ./static
 
-EXPOSE 5000
+EXPOSE 80
 
 ENTRYPOINT ["./main"]

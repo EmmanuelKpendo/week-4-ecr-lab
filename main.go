@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
 	"os"
@@ -29,7 +30,7 @@ var africanCountries = []string{
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "5000"
+		port = "80"
 	}
 
 	seed := time.Now().UnixNano()
@@ -56,6 +57,7 @@ func main() {
 	})
 
 	err := router.Run(":" + port)
+	fmt.Println("Application running on port: " + port)
 	if err != nil {
 		return
 	}
